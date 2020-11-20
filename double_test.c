@@ -22,5 +22,6 @@ int main(){
     qsort(arr, n, sizeof(double), compareMyType);
     for(int i = 0; i < n; i++)
         printf("%f\n", arr[i]);
+    __builtin_free(arr);
     return 0;
 }
