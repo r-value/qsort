@@ -3,13 +3,16 @@
 #include <string.h>
 #include "xorshift.h"
 
-static void swap(void* lhs, void* rhs, size_t size){
-    void* tmp = malloc(size);
-    memcpy(tmp, lhs, size);
-    memcpy(lhs, rhs, size);
-    memcpy(rhs, tmp, size);
-    free(tmp);
-}
+#define swap(lhs,rhs,size)                       \
+do {                                             \
+    size_t _size = (size);                       \
+    char *_lhs = (lhs), *_rhs = (rhs);           \
+    while(_size --> 0){                          \
+        char tmp = *_lhs;                        \
+        *_lhs++ = *_rhs;                         \
+        *_rhs++ = tmp;                           \
+    }                                            \
+}while(0)
 
 static void selection_sort(void* base, size_t count, size_t size, int (*comp)(const void*, const void*)){
     void* end = base + size * count;
