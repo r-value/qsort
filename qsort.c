@@ -31,20 +31,28 @@ void qsort(void* base, size_t count, size_t size, int (*comp)(const void*, const
     else if(count < 20)
         selection_sort(base, count, size, comp);
     else{
-        void* top = base;
         void* pivot = base + size * (count - 1);
         swap(base + size * (xorshift32() % count), pivot, size);
 
-        for(void* cur = base; cur != pivot; cur += size){
-            if(comp(cur, pivot) < 0){
-                swap(cur, top, size);
-                top += size;
-            }
-        }
-        swap(top, pivot, size);
+        void* L = base;
+        void* R = pivot - size;
+        while(1){
+            while(comp(L, pivot) < 0)
+                L += size;
+            while(comp(R, pivot) > 0)
+                R -= size;
 
-        size_t lcnt = (top - base) / size;
+            if(L >= R)
+                break;
+
+            swap(L, R, size);
+            L += size;
+            R -= size;
+        }
+        swap(L, pivot, size);
+
+        size_t lcnt = (L - base) / size;
         qsort(base, lcnt, size, comp);
-        qsort(top+size, count - lcnt - 1, size, comp);
+        qsort(L + size, count - lcnt - 1, size, comp);
     }
 }
