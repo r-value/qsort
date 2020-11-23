@@ -25,21 +25,40 @@ static void selection_sort(void* base, size_t count, size_t size, int (*comp)(co
     }
 }
 
+static void* qsort_pivot(void* base, size_t count, size_t size, int (*comp)(const void*, const void*)){
+    size_t half = count / 2;
+    void* p1 = base + size * half;
+    void* p2 = base + size * (xorshift32() % half);
+    void* p3 = base + size * (xorshift32() % (count - half - 1) + half + 1);
+    
+    return comp(p1, p2) < 0 ? (
+            comp(p2, p3) < 0 ? p2 : (
+                comp(p1, p3) < 0 ? p3 : p1
+            )
+        )
+        :(
+            comp(p2, p3) > 0 ? p2 : (
+                comp(p1, p3) > 0 ? p3 : p1
+            )
+        )
+    ;
+}
+
 void qsort(void* base, size_t count, size_t size, int (*comp)(const void*, const void*)){
     if(count < 2)
         return;
-    else if(count < 20)
+    else if(count < 15)
         selection_sort(base, count, size, comp);
     else{
         void* pivot = base + size * (count - 1);
-        swap(base + size * (xorshift32() % count), pivot, size);
+        swap(qsort_pivot(base, count, size, comp), pivot, size);
 
         void* L = base;
         void* R = pivot - size;
         while(1){
-            while(L != pivot && comp(L, pivot) < 0)
+            while(comp(L, pivot) < 0)
                 L += size;
-            while(R != base && comp(R, pivot) > 0)
+            while(comp(R, pivot) > 0)
                 R -= size;
 
             if(L >= R)
