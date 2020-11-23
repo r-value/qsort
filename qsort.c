@@ -37,9 +37,9 @@ void qsort(void* base, size_t count, size_t size, int (*comp)(const void*, const
         void* L = base;
         void* R = pivot - size;
         while(1){
-            while(comp(L, pivot) < 0)
+            while(L != pivot && comp(L, pivot) < 0)
                 L += size;
-            while(comp(R, pivot) > 0)
+            while(R != base && comp(R, pivot) > 0)
                 R -= size;
 
             if(L >= R)
